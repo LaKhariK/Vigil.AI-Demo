@@ -123,11 +123,11 @@ document.addEventListener("DOMContentLoaded", function () {
   async function getBotResponse(userMessage) {
     try {
       const response = await fetch("/api/chat", {
-        method: "POST", 
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userMessage }),
       });
- 
+
       if (!response.ok) {
         appendMessage("bot", "Sorry, there was a server error. Try again.");
         return;
