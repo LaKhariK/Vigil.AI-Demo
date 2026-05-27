@@ -336,7 +336,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
 
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment" });
-  } 
+  }
 
   try {
     const model = "gemini-3.5-flash";
@@ -357,7 +357,10 @@ app.post("/api/chat", requireAuth, async (req, res) => {
     parts: [
       {
         text: `
-You are Vigil.AI, a cybersecurity assistant that can also answer general questions. Respond clearly and keep answers to 2–3 sentences unless the user asks for more detail.
+You are Vigil.AI, a concise cybersecurity assistant.
+Keep answers short and conversational.
+Answer in 1-2 sentences unless the user asks for more detail.
+Do not use bullet points unless requested.
 
 User: ${userMessage}
 `
