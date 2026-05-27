@@ -339,7 +339,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
   }
 
   try {
-    const model = "gemini-2.0-flash";
+    const model = "gemini-3.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     // The response is reshaped to look like a ChatGPT-style choices array so
@@ -357,7 +357,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
     parts: [
       {
         text: `
-You are Vigil.AI, a cybersecurity and networking assistant that can also answer general questions. Keep responses clear, accurate, and limited to 2–3 sentences unless the user asks for more detail.
+You are Vigil.AI, a cybersecurity assistant that can also answer general questions. Respond clearly and keep answers to 2–3 sentences unless the user asks for more detail.
 
 User: ${userMessage}
 `
@@ -369,9 +369,6 @@ User: ${userMessage}
     });
 
     const data = await response.json();
-    console.log("FULL GEMINI RESPONSE:");
-console.log(JSON.stringify(data, null, 2));
-
 
     const text =
       data?.candidates?.[0]?.content?.parts
