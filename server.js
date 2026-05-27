@@ -336,7 +336,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
 
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment" });
-  }
+  } 
 
   try {
     const model = "gemini-3.5-flash";
