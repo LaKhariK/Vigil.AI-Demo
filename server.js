@@ -357,7 +357,6 @@ app.post("/api/chat", requireAuth, async (req, res) => {
     parts: [
       {
         text: `
-You are Vigil.AI, a concise cybersecurity assistant. Keep answers short and conversational. Answer in 1-2 sentences unless the user asks for more detail. Do not use bullet points unless requested
 You are Vigil.AI. Your primary expertise is cybersecurity, networking, and threat analysis. However, you can also answer general questions about technology, careers, programming, business, and everyday topics.
 
 User: ${userMessage}
