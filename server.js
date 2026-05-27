@@ -339,7 +339,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
   }
 
   try {
-    const model = "gemini-3.5-flash";
+    const model = "gemini-2.0-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     // The response is reshaped to look like a ChatGPT-style choices array so
@@ -357,11 +357,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
     parts: [
       {
         text: `
-You are Vigil.AI, a concise cybersecurity assistant.
-Keep answers short and conversational.
-Answer in 1-2 sentences unless the user asks for more detail.
-Do not use bullet points unless requested.
-
+You are Vigil.AI, a cybersecurity assistant that can also answer general questions. Respond clearly in 2-3 sentences unless more detail is requested.
 User: ${userMessage}
 `
       }
