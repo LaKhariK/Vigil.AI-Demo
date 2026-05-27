@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 async function sendToModel(features) {
   console.log("📤 Sending to model:", features);
 
-  const response = await fetch("http://localhost:3000/predict", {
+  const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ features: features })
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function getBotResponse(userMessage) {
     try {
-      const response = await fetch("http://localhost:3000/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userMessage }),
