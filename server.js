@@ -369,6 +369,9 @@ User: ${userMessage}
     });
 
     const data = await response.json();
+    console.log("FULL GEMINI RESPONSE:");
+console.log(JSON.stringify(data, null, 2));
+
 
     const text =
       data?.candidates?.[0]?.content?.parts
