@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vigil.AI – Live Traffic Monitor</title>
+  <link rel="stylesheet" href="traffic-analysis.css">
+</head>
+<body>
+  <div class="analysis-shell">
+
+    <header class="topbar">
+      <div class="nav-actions">
+        <a href="traffic-analytics.html" class="back-link">View Analytics →</a>
+        <a href="chatbot-index.html" class="back-link">← Back to Chatbot</a>
+        <a href="model_dashboard.html" class="back-link">Model Analytics</a>
+      </div>
+    </header>
+
+    <section class="card">
+
+      <div class="card-header">
+        <h2>Live Monitoring</h2>
+        <div class="pill" id="live-status">Idle</div>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <label>Interface</label>
+          <select id="iface-select">
+            <option>Loading...</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label>Filter</label>
+          <select id="filter-select">
+            <option value="ip">IP only</option>
+            <option value="tcp">TCP only</option>
+            <option value="udp">UDP only</option>
+            <option value="any">No filter</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label>UI Refresh</label>
+          <select id="refresh-rate">
+            <option value="250">Fast</option>
+            <option value="500" selected>Normal</option>
+            <option value="1000">Slow</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="btn-start">Start Live</button>
+          <button class="btn" id="btn-stop" disabled>Stop</button>
+          <button class="btn" id="btn-clear">Clear</button>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div class="metric">
+          <div class="metric-label">Connections</div>
+          <div class="metric-value" id="metric-count">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">High Risk</div>
+          <div class="metric-value" id="metric-high">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Top Port</div>
+          <div class="metric-value" id="metric-port">—</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Protocol</th>
+              <th>Ports</th>
+              <th>Length</th>
+              <th>Risk</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody id="live-tbody">
+            <tr><td colspan="8" class="empty">Waiting for live traffic...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="traffic-analysis.js"></script>
+</body>
+</html>

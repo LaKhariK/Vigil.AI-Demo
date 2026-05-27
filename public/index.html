@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vigil.AI – Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: "IBM Plex Sans", sans-serif;
+      background: radial-gradient(circle at top, #111827, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+    }
+
+    .login-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 32px;
+      width: 360px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .login-card h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+
+    .login-card p {
+      margin: 0 0 24px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: #cbd5f5;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .field input:focus {
+      border-color: #3b82f6;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+    }
+
+    .btn-register {
+      background: linear-gradient(135deg, #16a34a, #166534);
+    }
+
+    .btn:hover {
+      opacity: 0.95;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #f87171;
+      text-align: center;
+      display: none;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <h1>Vigil.AI</h1>
+    <p>Secure access to intelligent traffic analysis</p>
+
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="Enter username" autocomplete="username" />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" />
+    </div>
+
+    <div class="btn-row">
+      <button id="login-btn" class="btn btn-login" type="button">Login</button>
+      <button id="register-btn" class="btn btn-register" type="button">Register</button>
+    </div>
+
+    <div class="error" id="error-msg"></div>
+
+    <div class="hint">
+      Register creates a new account and logs you in.<br />
+      Usernames must be unique. Passwords should be 8+ characters.
+    </div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById("login-btn");
+    const registerBtn = document.getElementById("register-btn");
+
+    function setBusy(isBusy) {
+      loginBtn.disabled = isBusy;
+      registerBtn.disabled = isBusy;
+    }
+
+    function showError(message) {
+      const error = document.getElementById("error-msg");
+      error.textContent = message || "Something went wrong.";
+      error.style.display = "block";
+    }
+
+    function clearError() {
+      const error = document.getElementById("error-msg");
+      error.textContent = "";
+      error.style.display = "none";
+    }
+
+    async function postJSON(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+
+      return data;
+    }
+
+    async function doLogin() {
+      clearError();
+      setBusy(true);
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        setBusy(false);
+        return showError("Please enter a username and password.");
+      }
+
+      try {
+        await postJSON("/auth/login", { username, password });
+        window.location.replace("/app");
+      } catch (err) {
+        showError(err.message);
+        setBusy(false);
+      }
+    }
+
+    async function doRegister() {
+      clearError();
+      setBusy(true);
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        setBusy(false);
+        return showError("Please enter a username and password.");
+      }
+
+      try {
+        await postJSON("/auth/register", { username, password });
+        window.location.replace("/app");
+      } catch (err) {
+        showError(err.message);
+        setBusy(false);
+      }
+    }
+
+    loginBtn.addEventListener("click", doLogin);
+    registerBtn.addEventListener("click", doRegister);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        doLogin();
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vigil.AI — Model Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    background: #0d1117;
+    border-bottom: 1px solid #1e2740;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+  .nav-btns { display: flex; gap: 10px; }
+  .nav-btn {
+    background: transparent;
+    border: 1.5px solid #334155;
+    color: #e2e8f0;
+    padding: 7px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-family: 'Segoe UI', sans-serif;
+    text-decoration: none;
+    transition: border-color .2s, background .2s;
+    display: inline-block;
+  }
+  .nav-btn:hover { border-color: #60a5fa; background: #1e2740; }
+
+  .page { padding: 28px; max-width: 1300px; margin: 0 auto; }
+  .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+  .page-sub   { font-size: .85rem; color: #64748b; margin-bottom: 24px; }
+
+  .legend { display: flex; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
+  .leg { display: flex; align-items: center; gap: 8px; font-size: .82rem; color: #94a3b8; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .card {
+    background: #161d2d;
+    border: 1px solid #1e2740;
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .card-label { font-size: .7rem; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+  .card-row { display: flex; gap: 22px; }
+  .cv { display: flex; flex-direction: column; }
+  .cv-num { font-size: 1.65rem; font-weight: 700; line-height: 1; }
+  .cv-tag { font-size: .65rem; color: #64748b; margin-top: 4px; }
+  .xgb { color: #38bdf8; }
+  .mlp { color: #f472b6; }
+  .winner-tag {
+    display: inline-block; margin-top: 10px;
+    font-size: .6rem; font-weight: 700;
+    background: #14532d; color: #4ade80;
+    border-radius: 4px; padding: 2px 8px;
+  }
+
+  .charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .chart-card {
+    background: #161d2d;
+    border: 1px solid #1e2740;
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .chart-card h3 { font-size: .92rem; font-weight: 600; color: #fff; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 230px; }
+
+  .table-card {
+    background: #161d2d;
+    border: 1px solid #1e2740;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 22px;
+    overflow-x: auto;
+  }
+  .table-card h3 { font-size: .92rem; font-weight: 600; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  th {
+    text-align: left; padding: 8px 14px;
+    font-size: .68rem; color: #64748b;
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid #1e2740; font-weight: 500;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid #1a2235; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.025); }
+  .td-key  { color: #94a3b8; }
+  .td-xgb  { color: #38bdf8; font-weight: 600; }
+  .td-mlp  { color: #f472b6; font-weight: 600; }
+  .td-win  { color: #4ade80; font-size: .75rem; font-weight: 600; }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .arch-card { background: #161d2d; border-radius: 14px; padding: 22px; }
+  .arch-card.xgb-card { border: 1px solid #1e3a5a; }
+  .arch-card.mlp-card { border: 1px solid #3b1f35; }
+  .arch-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: 14px; }
+  .arch-card.xgb-card h3 { color: #38bdf8; }
+  .arch-card.mlp-card h3 { color: #f472b6; }
+  .arch-line {
+    display: flex; justify-content: space-between;
+    font-size: .8rem; padding: 7px 0;
+    border-bottom: 1px solid #1e2740;
+  }
+  .arch-line:last-child { border-bottom: none; }
+  .arch-key { color: #64748b; }
+  .arch-val { color: #e2e8f0; }
+
+  .dataset-card {
+    background: #161d2d;
+    border: 1px solid #1e2740;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+  .dataset-card h3 { font-size: .92rem; font-weight: 600; margin-bottom: 14px; }
+  .dataset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .ds-item { display: flex; flex-direction: column; gap: 4px; }
+  .ds-val { font-size: 1.2rem; font-weight: 700; color: #38bdf8; }
+  .ds-key { font-size: .7rem; color: #64748b; text-transform: uppercase; letter-spacing: .07em; }
+
+  @media (max-width: 768px) {
+    .charts, .arch-grid { grid-template-columns: 1fr; }
+    .page { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <h1>Model Analytics</h1>
+  <div class="nav-btns">
+    <a class="nav-btn" href="/traffic-analytics.html">← Live Monitor</a>
+    <a class="nav-btn" href="/chatbot-index.html">Chatbot</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">ML Model Comparison</div>
+  <div class="page-sub">XGBoost (production) vs MLP deep learning — trained on CICIDS2019 real network traffic dataset</div>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#38bdf8"></div>XGBoost — Production Model</div>
+    <div class="leg"><div class="leg-dot" style="background:#f472b6"></div>MLP — Deep Learning Comparison</div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Overall Metrics Comparison</h3>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>F1 Score by Attack Class</h3>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <h3>Full Metrics Breakdown</h3>
+    <table>
+      <thead><tr><th>Metric</th><th>XGBoost</th><th>MLP</th><th>Winner</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="arch-grid" id="archGrid"></div>
+
+  <div class="dataset-card">
+    <h3>Dataset — CICIDS 2019</h3>
+    <div class="dataset-grid" id="datasetGrid"></div>
+  </div>
+</div>
+
+<script>
+const FALLBACK = {
+  xgboost: {
+    accuracy: 93.44, precision: 94.01, recall: 93.44, f1: 93.41,
+    train_time_sec: 21.7,
+    architecture: "XGBoost (n=250, depth=6, lr=0.1)",
+    type: "Gradient Boosted Trees",
+    per_class_f1: { "Benign": 98.0, "DDoS": 90.0, "DoS": 94.0, "PortScan": 92.0 }
+  },
+  mlp: {
+    accuracy: 75.23, precision: 84.77, recall: 75.23, f1: 74.57,
+    train_time_sec: 237.1,
+    architecture: "MLP (256 → 128 → 64, ReLU, Adam)",
+    type: "Deep Neural Network",
+    per_class_f1: { "Benign": 82.0, "DDoS": 72.0, "DoS": 75.0, "PortScan": 68.0 }
+  },
+  dataset: {
+    total_samples: 431371, train_samples: 849254,
+    test_samples: 212314, features: 32, classes: 4
+  }
+};
+
+async function loadStats() {
+  try {
+    const res = await fetch('/model_stats.json');
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch { return FALLBACK; }
+}
+
+function render(stats) {
+  const xgb = stats.xgboost, mlp = stats.mlp, ds = stats.dataset;
+
+  [['accuracy','Accuracy'],['precision','Precision'],['recall','Recall'],['f1','F1 Score']].forEach(([key, label]) => {
+    const xv = xgb[key], mv = mlp[key];
+    document.getElementById('cards').innerHTML += `
+      <div class="card">
+        <div class="card-label">${label}</div>
+        <div class="card-row">
+          <div class="cv"><span class="cv-num xgb">${xv}%</span><span class="cv-tag">XGBoost</span></div>
+          <div class="cv"><span class="cv-num mlp">${mv}%</span><span class="cv-tag">MLP</span></div>
+        </div>
+        <div class="winner-tag">${xv >= mv ? 'XGBoost wins' : 'MLP wins'}</div>
+      </div>`;
+  });
+
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['Accuracy','Precision','Recall','F1 Score'],
+      datasets: [
+        { label:'XGBoost', data:[xgb.accuracy,xgb.precision,xgb.recall,xgb.f1],
+          borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.15)', pointBackgroundColor:'#38bdf8' },
+        { label:'MLP', data:[mlp.accuracy,mlp.precision,mlp.recall,mlp.f1],
+          borderColor:'#f472b6', backgroundColor:'rgba(244,114,182,0.15)', pointBackgroundColor:'#f472b6' }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales:{ r:{ min:60, max:100,
+        grid:{color:'#1e2740'}, angleLines:{color:'#1e2740'},
+        pointLabels:{color:'#94a3b8',font:{size:11}},
+        ticks:{color:'#64748b',backdropColor:'transparent',stepSize:10}
+      }},
+      plugins:{ legend:{labels:{color:'#94a3b8',boxWidth:12,font:{size:11}}} }
+    }
+  });
+
+  const cls = Object.keys(xgb.per_class_f1 || {});
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: cls,
+      datasets: [
+        { label:'XGBoost', data:cls.map(c=>xgb.per_class_f1[c]??0), backgroundColor:'rgba(56,189,248,0.7)', borderRadius:5 },
+        { label:'MLP',     data:cls.map(c=>mlp.per_class_f1[c]??0), backgroundColor:'rgba(244,114,182,0.7)', borderRadius:5 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#1e2740'}},
+        y:{min:50,max:100,ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#1e2740'}}
+      },
+      plugins:{legend:{labels:{color:'#94a3b8',boxWidth:12,font:{size:11}}}}
+    }
+  });
+
+  const tbody = document.getElementById('tableBody');
+  [
+    {key:'accuracy',label:'Accuracy (%)',unit:'%'},
+    {key:'precision',label:'Precision (%)',unit:'%'},
+    {key:'recall',label:'Recall (%)',unit:'%'},
+    {key:'f1',label:'F1 Score (%)',unit:'%'},
+    {key:'train_time_sec',label:'Train Time',unit:'s',lowerBetter:true},
+  ].forEach(({key,label,unit,lowerBetter}) => {
+    const xv=xgb[key], mv=mlp[key];
+    const xWins = lowerBetter ? xv<=mv : xv>=mv;
+    tbody.innerHTML += `<tr>
+      <td class="td-key">${label}</td>
+      <td class="td-xgb">${xv}${unit}</td>
+      <td class="td-mlp">${mv}${unit}</td>
+      <td class="td-win">${xWins?'XGBoost ✓':'MLP ✓'}</td>
+    </tr>`;
+  });
+
+  const archGrid = document.getElementById('archGrid');
+  [{cls:'xgb-card',title:'XGBoost — Production',m:xgb},{cls:'mlp-card',title:'MLP — Deep Learning',m:mlp}]
+  .forEach(({cls,title,m}) => {
+    archGrid.innerHTML += `<div class="arch-card ${cls}">
+      <h3>${title}</h3>
+      <div class="arch-line"><span class="arch-key">Type</span><span class="arch-val">${m.type}</span></div>
+      <div class="arch-line"><span class="arch-key">Architecture</span><span class="arch-val">${m.architecture}</span></div>
+      <div class="arch-line"><span class="arch-key">Accuracy</span><span class="arch-val">${m.accuracy}%</span></div>
+      <div class="arch-line"><span class="arch-key">F1 Score</span><span class="arch-val">${m.f1}%</span></div>
+      <div class="arch-line"><span class="arch-key">Train Time</span><span class="arch-val">${m.train_time_sec}s</span></div>
+    </div>`;
+  });
+
+  const dsGrid = document.getElementById('datasetGrid');
+  [['Total Samples',Number(ds.total_samples).toLocaleString()],
+   ['Train Samples',Number(ds.train_samples).toLocaleString()],
+   ['Test Samples',Number(ds.test_samples).toLocaleString()],
+   ['Features',ds.features],['Classes',ds.classes],['Dataset','CICIDS 2019']]
+  .forEach(([k,v]) => {
+    dsGrid.innerHTML += `<div class="ds-item"><span class="ds-val">${v}</span><span class="ds-key">${k}</span></div>`;
+  });
+}
+
+loadStats().then(render);
+</script>
+</body>
+</html>

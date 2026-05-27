@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vigil.AI – Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="chatbot-style.css" />
+  </head>
+
+  <body>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="traffic-analysis.html" class="analysis-link">← Live Monitor</a>
+      <a href="traffic-analytics.html" class="analysis-link">Analytics →</a>
+      <a href="model_dashboard.html" class="analysis-link">Model Analytics →</a>
+    </nav>
+
+    <main class="page-shell">
+      <section class="left-panel" aria-label="Intro">
+        <header class="chatbot-headerbar">
+          <div>
+            <h1 class="chatbot-title">Vigil.AI Chatbot</h1>
+            <p class="chatbot-sub">
+              Ask questions about network threats, paste traffic snippets or get
+              real-time guidance.
+            </p>
+          </div>
+        </header>
+
+        <div id="intro-container" aria-live="polite">
+          <div class="glass-box">
+            <h2 id="intro-text"></h2>
+          </div>
+        </div>
+
+        <div class="feature-pills">
+          <div class="pill"><div class="pill-dot"></div>Live Threat Analysis</div>
+          <div class="pill"><div class="pill-dot"></div>CICIDS 2019 Trained</div>
+          <div class="pill"><div class="pill-dot"></div>Real-time Alerts</div>
+        </div>
+      </section>
+
+      <aside id="chatbot-container" aria-label="Chatbot">
+        <div id="chatbot-header">
+          <span>Vigil.AI</span>
+          <button id="close-btn" type="button" title="Close" aria-label="Close chat">&times;</button>
+        </div>
+
+        <div id="chatbot-body">
+          <div id="chatbot-messages"></div>
+        </div>
+
+        <div id="chatbot-input-container">
+          <input
+            type="text"
+            id="chatbot-input"
+            placeholder="Ask Vigil anything..."
+            autocomplete="off"
+          />
+          <button id="send-btn" type="button">Send</button>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const alert = params.get("alert");
+        if (alert) {
+          setTimeout(() => {
+            const input = document.getElementById("chatbot-input");
+            const sendBtn = document.getElementById("send-btn");
+            if (input && sendBtn) {
+              input.value = decodeURIComponent(alert);
+              sendBtn.click();
+            }
+          }, 800);
+        }
+      });
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
