@@ -339,7 +339,7 @@ app.post("/api/chat", requireAuth, async (req, res) => {
   }
 
   try {
-    const model = "gemini-3.5-flash";
+    const model = "gemini-2.0-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     // The response is reshaped to look like a ChatGPT-style choices array so
