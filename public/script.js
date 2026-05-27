@@ -134,8 +134,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const data = await response.json();
+      console.log("Gemini response:", data);
       const botMessage =
         data.choices?.[0]?.message?.content || "Sorry, I didn’t get that.";
+        
 
       const messageElement = document.createElement("div");
       messageElement.classList.add("message", "bot");
