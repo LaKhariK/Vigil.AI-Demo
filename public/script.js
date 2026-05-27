@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = await response.json();
       console.log("Gemini response:", data);
       const botMessage =
-         JSON.stringify(data) || "Sorry, I didn’t get that.";
+         JSON.stringify(data) || "Sorry, I didn’t get that."; 
         
 
       const messageElement = document.createElement("div");
