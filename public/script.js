@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 async function sendToModel(features) {
   console.log("📤 Sending to model:", features);
 
-  const response = await fetch("/api/chat", {
+  const response = await fetch("/predict", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ features: features })
@@ -134,10 +134,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const data = await response.json();
-      console.log("Gemini response:", data);
       const botMessage =
-         JSON.stringify(data) || "Sorry, I didn’t get that."; 
-        
+        data.choices?.[0]?.message?.content || "Sorry, I didn’t get that.";
 
       const messageElement = document.createElement("div");
       messageElement.classList.add("message", "bot");
